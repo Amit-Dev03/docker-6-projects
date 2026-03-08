@@ -1,0 +1,45 @@
+# 1. Build different versions to compare sizes
+docker build -t go-app:basic -f Dockerfile.basic .
+docker build -t go-app:multistage -f Dockerfile.multistage .
+docker build -t go-app:distroless -f Dockerfile.distroless .
+docker build -t go-app:alpine -f Dockerfile.alpine .
+
+# 2. Compare image sizes
+docker images | grep go-app
+
+# 3. Run and test
+docker run -d -p 8080:8080 --name go-app go-app:multistage
+curl http://localhost:8080
+
+# 4. Inspect image layers
+docker history go-app:multistage
+docker history go-app:basic
+
+# 5. Dive into image (install dive first)
+dive go-app:multistage
+
+# 6. Scan for vulnerabilities
+docker scan go-app:multistage
+
+# 7. Export and import
+docker save go-app:multistage | gzip > go-app.tar.gz
+docker load < go-app.tar.gz
+
+# 8. Run container with resource limits
+docker run -d \
+  --memory="50m" \
+  --cpus="0.25" \
+  -p 8080:8080 \
+  --name go-app-limited \
+  go-app:multistage
+
+# 9. Check binary size inside container
+docker run --rm go-app:multistage ls -lh /main
+
+# 10. Run container in read-only mode
+docker run -d \
+  --read-only \
+  --tmpfs /tmp \
+  -p 8081:8080 \
+  --name go-app-readonly \
+  go-app:multistage

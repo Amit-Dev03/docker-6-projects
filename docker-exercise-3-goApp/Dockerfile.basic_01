@@ -1,0 +1,13 @@
+#size - 400MB
+FROM golang:1.21
+
+WORKDIR /app
+
+# COPY go.mod go.sum ./ => go.sum appears only when you've external modules, otherwise keep go.mod only 
+COPY go.mod ./
+RUN go mod download
+
+COPY .  .
+RUN CGO_ENABLED=0 GOOS=linux go build -o main .
+
+CMD ["./main"]
