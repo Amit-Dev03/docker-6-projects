@@ -26,7 +26,7 @@ RUN useradd -m -u 1000 appuser && \
 WORKDIR /app
 
 #Copy python dependencies from builder stage
-COPY --from=builder --chown=appuser:appuser /root/.local /home/appuser/.local
+COPY --from=builder --chown=appuser:appuser /usr/local /usr/local
 
 #Copy application code
 COPY --chown=appuser:appuser . .
