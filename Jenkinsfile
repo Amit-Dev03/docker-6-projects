@@ -1,21 +1,32 @@
 pipeline{
     agent { label 'dev' }
+
     stages{
         stage("Code clone"){
             steps{
                 git url:"https://github.com/Amit-Dev03/docker-6-projects.git", branch:"main"
             }
         }
+
+        stage("Trivy file system scan"){
+            steps{
+                sh "trivy fs . --exit-code 1 --severity CRITICAL,HIGH -f json -o results.json"
+                archiveArtifacts artifacts: 'results.json', fingerprint: true
+            }
+        }
+
         stage("Build image"){
             steps{
                 sh "docker build -t flask-app:v1 -f Dockerfile.pro ."
             }
         }
+
         stage("Test"){
             steps{
                 echo "Testing done"
             }
         }
+
         stage("Push to Dockerhub"){
             steps{
                 withCredentials([usernamePassword(
@@ -31,12 +42,14 @@ pipeline{
                 }
             }
         }
+
         stage("Deploy"){
             steps{
-                echo "docker compose up --build flask-app, need to make docker-compose now"
+                echo "docker compose up --build flask-app"
             }
         }
     }
+
     post {
         always {
             emailext(
@@ -47,7 +60,8 @@ pipeline{
                 Build Number: ${env.BUILD_NUMBER}
                 Status: ${currentBuild.currentResult}
                 URL: ${env.BUILD_URL}
-                """
+                """,
+                attachLog: true
             )
         }
 
