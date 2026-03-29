@@ -37,4 +37,26 @@ pipeline{
             }
         }
     }
+    post {
+        always {
+            emailext(
+                to: 'pandeyamit2426@gmail.com',
+                subject: "Build #${BUILD_NUMBER} - ${currentBuild.currentResult}",
+                body: """
+                Job: ${env.JOB_NAME}
+                Build Number: ${env.BUILD_NUMBER}
+                Status: ${currentBuild.currentResult}
+                URL: ${env.BUILD_URL}
+                """
+            )
+        }
+
+        success {
+            echo "Build succeeded"
+        }
+
+        failure {
+            echo "Build failed"
+        }
+    }
 }
