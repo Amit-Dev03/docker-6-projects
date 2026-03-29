@@ -205,7 +205,3 @@ sudo systemctl restart jenkins
 8. Assign admin role
 
 ---
-
-
-
-**End of Guide**
