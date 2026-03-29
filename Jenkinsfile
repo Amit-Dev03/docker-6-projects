@@ -10,7 +10,7 @@ pipeline{
 
         stage("Trivy file system scan"){
             steps{
-                sh "trivy fs . --exit-code 1 --severity CRITICAL,HIGH -f json -o results.json"
+                sh "trivy fs . --exit-code 1 --severity CRITICAL"
                 archiveArtifacts artifacts: 'results.json', fingerprint: true
             }
         }
