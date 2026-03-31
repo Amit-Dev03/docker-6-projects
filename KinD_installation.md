@@ -134,6 +134,96 @@ kind load docker-image my-app:latest
 
 ---
 
+# ⚠️ WSL-Specific Issue (Very Important)
+
+## ❌ Error
+
+```
+kubelet is not healthy
+required cgroups disabled
+```
+
+## 📌 Cause
+
+WSL (Windows Subsystem for Linux) does not fully support **cgroups/systemd**, which Kubernetes requires.
+
+---
+
+## ✅ Fix (Recommended)
+
+### Step 1: Open Docker Desktop (Windows)
+
+Go to:
+
+```
+Settings → Resources → WSL Integration
+```
+
+### Step 2: Enable your Ubuntu/WSL distro
+
+✔ Enable toggle for your distro
+
+---
+
+### Step 3: Restart Docker Desktop
+
+---
+
+### Step 4: Verify in WSL
+
+```bash
+docker info
+```
+
+Ensure you see:
+
+```
+Cgroup Driver: cgroupfs OR systemd
+```
+
+---
+
+### Step 5: Retry cluster creation
+
+```bash
+kind create cluster
+```
+
+---
+
+## ⚡ Alternative Fix
+
+Run kind from **Windows PowerShell instead of WSL**:
+
+```powershell
+kind create cluster
+```
+
+---
+
+## 🔧 Advanced Fix (Optional)
+
+Enable systemd in WSL:
+
+```bash
+sudo nano /etc/wsl.conf
+```
+
+Add:
+
+```ini
+[boot]
+systemd=true
+```
+
+Then restart:
+
+```bash
+wsl --shutdown
+```
+
+---
+
 ## ⚠️ Common Issues
 
 ### 1. Docker not running
@@ -150,9 +240,9 @@ kubectl cluster-info
 
 * Ensure `/usr/local/bin` is in PATH
 
-### 4. WSL Users
+### 4. WSL kubelet failure
 
-* Enable Docker Desktop WSL integration
+* Fix using Docker Desktop WSL integration (above)
 
 ---
 
@@ -178,7 +268,7 @@ kubectl apply -f deployment.yaml
 
 * kind is used for local Kubernetes clusters
 * Requires Docker
-* Fast and lightweight
+* WSL needs proper Docker integration
 * Ideal for testing and CI/CD
 
 ---
