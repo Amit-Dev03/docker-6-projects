@@ -2,11 +2,11 @@
 
 ## 📌 Goal
 
-Set up a **local Kubernetes cluster quickly** using kind (recommended approach for DevOps practice).
+Set up a **local Kubernetes cluster quickly** using kind (best for DevOps practice).
 
 ---
 
-# ⚡ FASTEST METHOD (Recommended) — PowerShell
+# ⚡ FASTEST METHOD — PowerShell (Recommended)
 
 ## ✅ Step 1: Open PowerShell (Admin)
 
@@ -14,34 +14,8 @@ Set up a **local Kubernetes cluster quickly** using kind (recommended approach f
 
 ## ✅ Step 2: Install kind
 
-### Option A: Using Chocolatey
-
 ```powershell
-choco install kind
-```
-
-### If Chocolatey not installed:
-
-```powershell
-Set-ExecutionPolicy Bypass -Scope Process -Force; `
-[System.Net.ServicePointManager]::SecurityProtocol = `
-[System.Net.ServicePointManager]::SecurityProtocol -bor 3072; `
-iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
-```
-
-Then:
-
-```powershell
-choco install kind
-```
-
----
-
-### Option B: Manual Install
-
-```powershell
-curl -Lo kind.exe https://kind.sigs.k8s.io/dl/latest/kind-windows-amd64
-move kind.exe C:\Windows\System32\
+choco install kind -y
 ```
 
 ---
@@ -52,6 +26,19 @@ move kind.exe C:\Windows\System32\
 kind --version
 kubectl version --client
 docker version
+```
+
+---
+
+## ⚠️ IMPORTANT: Start Docker Desktop
+
+Before creating cluster:
+
+* Open **Docker Desktop**
+* Wait until:
+
+```
+Docker is running
 ```
 
 ---
@@ -87,11 +74,85 @@ kind create cluster
 
 ---
 
-# ⚠️ MUST CHECK
+# 🚨 COMMON MISTAKES (VERY IMPORTANT)
 
-* Docker Desktop is **running**
-* kubectl is installed
-* No WSL dependency needed
+## ❌ 1. Running Markdown in PowerShell
+
+### Example Mistakes:
+
+````
+```powershell
+# Heading
+---
+* bullet points
+````
+
+### Problem:
+
+PowerShell tries to execute them → errors like:
+
+```
+not recognized as command
+```
+
+### ✅ Rule:
+
+👉 Only run actual commands (kind, kubectl, docker)
+👉 Do NOT paste documentation into terminal
+
+---
+
+## ❌ 2. Docker Not Running
+
+### Error:
+
+```
+failed to connect to docker API
+```
+
+### Fix:
+
+* Start Docker Desktop manually
+
+---
+
+## ❌ 3. kind Not Recognized
+
+### Error:
+
+```
+kind : not recognized
+```
+
+### Fix:
+
+```powershell
+choco install kind -y --force
+```
+
+Then restart PowerShell
+
+---
+
+## ❌ 4. kubectl Authentication Error
+
+### Error:
+
+```
+Authentication required (HTML response)
+```
+
+### Cause:
+
+kubectl pointing to wrong cluster
+
+### Fix:
+
+After creating kind cluster:
+
+```powershell
+kubectl config use-context kind-kind
+```
 
 ---
 
@@ -116,71 +177,11 @@ kubectl apply -f deployment.yaml
 
 ---
 
-# 🐧 OPTIONAL (WSL Setup — Only if needed)
-
-## ❌ Common Error
-
-```
-kubelet not healthy
-required cgroups disabled
-```
-
-## 📌 Cause
-
-WSL lacks proper **cgroups/systemd support**
-
----
-
-## ✅ Fix
-
-### Enable systemd
-
-```bash
-sudo nano /etc/wsl.conf
-```
-
-Add:
-
-```ini
-[boot]
-systemd=true
-```
-
----
-
-### Restart WSL
-
-```powershell
-wsl --shutdown
-```
-
----
-
-### Verify
-
-```bash
-ps -p 1 -o comm=
-stat -fc %T /sys/fs/cgroup/
-```
-
-Expected:
-
-```
-systemd
-cgroup2fs
-```
-
----
-
-## ⚡ Recommendation
-
-👉 Prefer **PowerShell over WSL** for kind (more stable)
-
----
-
 # ⚡ Advanced (Optional)
 
 ## Multi-node cluster
+
+Create `cluster.yaml`:
 
 ```yaml
 kind: Cluster
@@ -208,9 +209,10 @@ kind load docker-image my-app:latest
 
 # 📌 Summary (Quick Recall)
 
-* Use **PowerShell → Best method**
-* kind runs K8s inside Docker
-* Avoid WSL issues unless configured deeply
+* Use **PowerShell (best + stable)**
+* Always start Docker first
+* Never paste Markdown into terminal
+* Use `kind` + `kubectl` commands only
 * Perfect for DevOps practice
 
 ---
